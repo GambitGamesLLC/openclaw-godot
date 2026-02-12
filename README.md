@@ -244,6 +244,37 @@ The orchestrator will:
 - Post worker type to Discord #worker-pool
 - Use custom AGENTS.md if `AGENTS_MD_TEMPLATE` is set
 - Include `EXTRA_PYTHONPATH` in agent environment
+- **Wait for agents to complete** before exiting (timeout + 5s buffer)
+
+### Important: Artifact Locations
+
+**Workers must save all artifacts to their task directory (`TASK_DIR`):**
+
+```python
+import os
+from pathlib import Path
+
+# Get task directory from environment variable
+TASK_DIR = Path(os.environ.get('TASK_DIR', '.'))
+
+# Save screenshots HERE
+screenshot_path = TASK_DIR / 'screenshot_result.png'
+
+# Write results HERE
+result_file = TASK_DIR / 'RESULT.txt'
+summary_file = TASK_DIR / 'SUMMARY.txt'
+```
+
+**The orchestrator:**
+- Waits for agents to finish (not just spawn them)
+- Checks for `RESULT.txt` and `SUMMARY.txt` after agent completion
+- Posts results to Discord #results
+- Cleans up worker directories after posting
+
+**Timeout behavior:**
+- Default: 120s agent timeout + 5s buffer = 125s total wait
+- High thinking: 300s + 5s = 305s total wait
+- Custom TIMEOUT: TIMEOUT + 5s buffer
 
 ## Components
 
