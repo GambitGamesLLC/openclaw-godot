@@ -198,6 +198,56 @@ Orchestrator analyzes task content:
 - "Verify screenshot" → godot-visual-verifier
 - "Run tests" → godot-tester
 
+### Advanced: Custom Orchestrator Configuration
+
+For Godot-specific tasks, use the modified orchestrator (`orchestrator-cookie.sh`) that supports:
+
+1. **Custom AGENTS.md templates** — Use worker definitions from `workers/`
+2. **Extra PYTHONPATH** — Make `godot_bridge` available to agents
+
+#### Usage
+
+```bash
+cd ~/Documents/GitHub/discord-orchestration
+
+# Run with godot-tester template and godot_bridge in PYTHONPATH
+AGENTS_MD_TEMPLATE=~/Documents/GitHub/openclaw-godot/workers/godot-tester.md \
+EXTRA_PYTHONPATH=~/Documents/GitHub/openclaw-godot/src \
+./bin/orchestrator-cookie.sh
+```
+
+#### Environment Variables
+
+| Variable | Purpose | Example |
+|----------|---------|---------|
+| `AGENTS_MD_TEMPLATE` | Path to worker template | `~/openclaw-godot/workers/godot-tester.md` |
+| `EXTRA_PYTHONPATH` | Add godot_bridge to Python path | `~/openclaw-godot/src` |
+| `DISCORD_CONFIG` | Custom config file path | `~/discord-config-cookie.env` |
+
+#### How It Works
+
+1. **Agent spawns** with custom `AGENTS.md` (copied from template)
+2. **PYTHONPATH includes** `openclaw-godot/src` so agents can:
+   ```python
+   from godot_bridge import GodotProject, GodotRunner, ScreenshotCapture
+   ```
+3. **Agent executes** Godot-specific task using the bridge
+4. **Results posted** to Discord with screenshots
+
+#### Example Task with Worker Tag
+
+Submit a task that specifies the worker type:
+
+```bash
+./bin/submit-to-queue.sh "[worker:godot-tester] Run button_background auto-test and capture screenshot"
+```
+
+The orchestrator will:
+- Parse `[worker:godot-tester]` tag
+- Use `workers/godot-tester.md` as AGENTS.md
+- Include `godot_bridge` in PYTHONPATH
+- Spawn agent ready to run Godot tests
+
 ## Components
 
 | Component                | Purpose                             | Location      |
