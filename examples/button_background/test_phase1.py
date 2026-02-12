@@ -57,9 +57,14 @@ def main():
     print("\n🎮 Starting Godot with display...")
     process = runner.run_with_display(project, "main.tscn")
     
-    # Wait for window
-    print("   Waiting for window (3s)...")
-    time.sleep(3)
+    # Wait for window to appear and stabilize
+    print("   Waiting for window (4s)...")
+    time.sleep(4)
+    
+    # Focus the Godot window first
+    print("   Focusing Godot window...")
+    focus_window("Button Background Test")
+    time.sleep(0.5)
     
     # Capture "before"
     print("   Capturing BEFORE screenshot...")
@@ -68,14 +73,20 @@ def main():
     capture.save_screenshot(img_before, path_before)
     print(f"   ✓ Saved: {path_before.name}")
     
-    # Click button via xdotool
+    # Click button via xdotool (relative to window or screen coordinates)
     print("   Clicking button via xdotool...")
-    click_result = click_at(640, 345)  # Center of button
+    # Try to find window and click relative to it
+    click_result = click_in_window("Button Background Test", 640, 345)
     if not click_result:
-        print("   ⚠️ xdotool failed, trying direct X11...")
+        print("   ⚠️ Window-relative click failed, trying absolute coordinates...")
+        click_result = click_at(640, 345)
     
-    # Wait for color change
-    time.sleep(0.5)
+    if not click_result:
+        print("   ⚠️ All click methods failed")
+    
+    # Wait longer for color change to propagate and render
+    print("   Waiting for color change (1s)...")
+    time.sleep(1)
     
     # Capture "after"
     print("   Capturing AFTER screenshot...")
@@ -114,10 +125,91 @@ def main():
     return 0 if passed else 1
 
 
-def click_at(x: int, y: int) -> bool:
-    """Click at screen coordinates using xdotool."""
+def focus_window(title_substring: str) -> bool:
+    """Focus window by title substring."""
     try:
-        # Move mouse and click
+        # Find window ID
+        result = subprocess.run(
+            ["xdotool", "search", "--name", title_substring],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        if result.returncode != 0 or not result.stdout.strip():
+            return False
+        
+        window_id = result.stdout.strip().split("\n")[0]
+        
+        # Activate/focus window
+        subprocess.run(
+            ["xdotool", "windowactivate", window_id],
+            check=True,
+            timeout=5,
+            capture_output=True
+        )
+        return True
+    except Exception as e:
+        print(f"   Focus failed: {e}")
+        return False
+
+
+def click_in_window(title_substring: str, x: int, y: int) -> bool:
+    """Click at coordinates relative to window."""
+    try:
+        # Find window ID
+        result = subprocess.run(
+            ["xdotool", "search", "--name", title_substring],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        if result.returncode != 0 or not result.stdout.strip():
+            return False
+        
+        window_id = result.stdout.strip().split("\n")[0]
+        
+        # Get window geometry
+        geo_result = subprocess.run(
+            ["xdotool", "getwindowgeometry", window_id],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        
+        # Parse position from output
+        # Format: Window 1234567
+        #   Position: 100,200 (screen: 0)
+        win_x, win_y = 0, 0
+        for line in geo_result.stdout.split("\n"):
+            if "Position:" in line:
+                # Extract "100,200" part
+                pos_part = line.split("Position:")[1].split("(")[0].strip()
+                coords = pos_part.split(",")
+                win_x = int(coords[0])
+                win_y = int(coords[1])
+                break
+        
+        # Click at absolute position (window pos + relative pos)
+        abs_x = win_x + x
+        abs_y = win_y + y
+        
+        print(f"   Window at ({win_x}, {win_y}), clicking at ({abs_x}, {abs_y})")
+        
+        subprocess.run(
+            ["xdotool", "mousemove", str(abs_x), str(abs_y), "click", "1"],
+            check=True,
+            timeout=5,
+            capture_output=True
+        )
+        return True
+    except Exception as e:
+        print(f"   Window click failed: {e}")
+        return False
+
+
+def click_at(x: int, y: int) -> bool:
+    """Click at absolute screen coordinates using xdotool."""
+    try:
         subprocess.run(
             ["xdotool", "mousemove", str(x), str(y), "click", "1"],
             check=True,
@@ -126,7 +218,7 @@ def click_at(x: int, y: int) -> bool:
         )
         return True
     except Exception as e:
-        print(f"   Click failed: {e}")
+        print(f"   Absolute click failed: {e}")
         return False
 
 
