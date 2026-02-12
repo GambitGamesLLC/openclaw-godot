@@ -1,0 +1,18 @@
+; Engine Configuration
+; Godot version: 4.6.stable
+
+[application]
+config/name="Button Background Test"
+config/description="Test project for OpenClaw-Godot autonomous testing"
+run/main_scene="res://main.tscn"
+config/features=PackedStringArray("4.2", "GL Compatibility")
+config/icon="res://icon.svg"
+
+[display]
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/size/resizable=false
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"

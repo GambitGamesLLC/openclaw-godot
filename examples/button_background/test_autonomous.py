@@ -1,20 +1,22 @@
+#!/usr/bin/env python3
 """
-Autonomous Test: Button That Changes Background
+Phase 0 Test: Button That Changes Background
 
-This example demonstrates the full OpenClaw-Godot loop:
-1. Coder implements a button
-2. Tester runs the scene and clicks it
-3. VisualVerifier confirms background color changed
-4. All without human intervention
+Proves the autonomous loop works end-to-end:
+1. Start Godot project
+2. Capture "before" screenshot
+3. Click button via PyAutoGUI
+4. Capture "after" screenshot
+5. Verify color changed
 
 Usage:
-    cd examples/button_background
     python test_autonomous.py
 
 Expected: PASS with green checkmark at end
 """
 
 import sys
+import time
 from pathlib import Path
 
 # Add src to path
@@ -25,124 +27,86 @@ from godot_bridge import GodotProject, GodotRunner, ScreenshotCapture, InputInje
 
 def main():
     print("=" * 60)
-    print("OpenClaw-Godot: Button Background Test")
+    print("OpenClaw-Godot: Phase 0 - Button Background Test")
     print("=" * 60)
     
     # Setup paths
-    project_path = Path(__file__).parent / "test_project"
-    screenshot_path = Path(__file__).parent / "screenshots"
-    screenshot_path.mkdir(exist_ok=True)
+    repo_root = Path(__file__).parent.parent.parent
+    project_path = repo_root / "godot" / "button_background"
+    screenshot_path = repo_root / "test_outputs" / "button_background"
+    screenshot_path.mkdir(parents=True, exist_ok=True)
     
-    # Step 1: Implement feature
-    print("\n📋 Step 1: Implementing button feature...")
-    implement_button(project_path)
-    print("✅ Code written")
+    print(f"\n📁 Project: {project_path}")
+    print(f"📁 Screenshots: {screenshot_path}")
     
-    # Step 2: Run and test
-    print("\n🎮 Step 2: Running test scenario...")
-    screenshot_before, screenshot_after = run_test(project_path, screenshot_path)
-    print(f"✅ Screenshots captured")
+    # Verify project exists
+    if not (project_path / "project.godot").exists():
+        print(f"\n❌ ERROR: project.godot not found at {project_path}")
+        return 1
     
-    # Step 3: Visual verification (placeholder - would use VLM)
-    print("\n👁️  Step 3: Visual verification...")
-    result = verify_screenshots(screenshot_before, screenshot_after)
+    # Step 1: Run the test scenario
+    print("\n🎮 Running test scenario...")
+    try:
+        screenshot_before, screenshot_after = run_test(project_path, screenshot_path)
+    except Exception as e:
+        print(f"\n❌ Test execution failed: {e}")
+        import traceback
+        traceback.print_exc()
+        return 1
     
+    # Step 2: Visual verification (pixel-based for Phase 0)
+    print("\n👁️  Verifying screenshots...")
+    result = verify_color_change(screenshot_before, screenshot_after)
+    
+    # Results
+    print("\n" + "=" * 60)
     if result:
-        print("\n✅ TEST PASSED")
+        print("✅ TEST PASSED - Color changed as expected")
+        print(f"📸 Before: {screenshot_before}")
+        print(f"📸 After:  {screenshot_after}")
         return 0
     else:
-        print("\n❌ TEST FAILED")
+        print("❌ TEST FAILED - Color did not change")
+        print(f"📸 Before: {screenshot_before}")
+        print(f"📸 After:  {screenshot_after}")
         return 1
-
-
-def implement_button(project_path: Path) -> None:
-    """Create a Godot project with a button that changes background."""
-    
-    # Create project directory
-    project_path.mkdir(parents=True, exist_ok=True)
-    
-    # Create project.godot
-    project_godot = """[gd_scene load_steps=2 format=3 uid="uid://testproject"]
-
-[application]
-config/name="Button Test"
-run/main_scene="res://main.tscn"
-config/features=["4.2"]
-"""
-    (project_path / "project.godot").write_text(project_godot)
-    
-    # Create main.gd script
-    main_gd = '''extends Node2D
-
-var is_red = false
-
-func _ready():
-    print("Main scene ready")
-    $Button.pressed.connect(_on_button_pressed)
-    # Start with blue background
-    RenderingServer.set_default_clear_color(Color.DARK_BLUE)
-
-func _on_button_pressed():
-    is_red = !is_red
-    if is_red:
-        RenderingServer.set_default_clear_color(Color.DARK_RED)
-        print("Background changed to RED")
-    else:
-        RenderingServer.set_default_clear_color(Color.DARK_BLUE)
-        print("Background changed to BLUE")
-'''
-    (project_path / "main.gd").write_text(main_gd)
-    
-    # Create main.tscn
-    main_tscn = '''[gd_scene load_steps=2 format=3 uid="uid://mainscene"]
-
-[ext_resource type="Script" path="res://main.gd" id="1_script"]
-
-[node name="Main" type="Node2D"]
-script = ExtResource("1_script")
-
-[node name="Button" type="Button" parent="."]
-offset_left = 440.0
-offset_top = 280.0
-offset_right = 640.0
-offset_bottom = 330.0
-text = "Change Color"
-'''
-    (project_path / "main.tscn").write_text(main_tscn)
 
 
 def run_test(project_path: Path, screenshot_path: Path) -> tuple[Path, Path]:
     """Run Godot and capture before/after screenshots."""
-    
-    import subprocess
-    import time
     
     # Initialize tools
     runner = GodotRunner()
     capture = ScreenshotCapture()
     input_ctl = InputInjector()
     
+    # Verify Godot is available
+    if not runner.verify_godot():
+        raise RuntimeError("Godot not found in PATH. Install Godot 4.6 and ensure 'godot' command works.")
+    
     # Load project
     project = GodotProject(project_path)
-    print(f"   Project: {project.name}")
+    print(f"   ✓ Project loaded: {project.name}")
     
     # Run with display
-    print("   Starting Godot...")
+    print("   Starting Godot (this may take 2-3 seconds)...")
     process = runner.run_with_display(project, "main.tscn")
     
-    # Wait for window to appear
+    # Wait for window to appear and render
+    print("   Waiting for window...")
     time.sleep(3)
     
     # Capture "before" screenshot
     print("   Capturing initial state...")
-    img_before = capture.capture_window("Godot")
+    img_before = capture.capture_screen()  # Use full screen for reliability
     path_before = screenshot_path / "before.png"
     capture.save_screenshot(img_before, path_before)
+    print(f"   ✓ Saved: {path_before.name}")
     
-    # Click the button (center of 440,280 to 640,330)
-    print("   Clicking button...")
-    button_x = 540  # (440 + 640) / 2
-    button_y = 305  # (280 + 330) / 2
+    # Click the button (center of Button node: 540+100, 320+25)
+    button_x = 640
+    button_y = 345
+    print(f"   Clicking button at ({button_x}, {button_y})...")
     input_ctl.click(button_x, button_y)
     
     # Wait for color change
@@ -150,13 +114,15 @@ def run_test(project_path: Path, screenshot_path: Path) -> tuple[Path, Path]:
     
     # Capture "after" screenshot
     print("   Capturing after click...")
-    img_after = capture.capture_window("Godot")
+    img_after = capture.capture_screen()
     path_after = screenshot_path / "after.png"
     capture.save_screenshot(img_after, path_after)
+    print(f"   ✓ Saved: {path_after.name}")
     
     # Stop Godot
     print("   Stopping Godot...")
-    runner.stop()
+    result = runner.stop()
+    print(f"   ✓ Exit code: {result['returncode']}")
     
     # Cleanup
     capture.close()
@@ -164,35 +130,39 @@ def run_test(project_path: Path, screenshot_path: Path) -> tuple[Path, Path]:
     return path_before, path_after
 
 
-def verify_screenshots(before: Path, after: Path) -> bool:
-    """Verify that background color changed.
+def verify_color_change(before: Path, after: Path) -> bool:
+    """Verify that background color changed between screenshots.
     
-    In a real implementation, this would use a VLM (Gemini, etc).
-    For now, we do a simple pixel comparison.
+    Phase 0 uses simple pixel comparison. Future phases will use VLM.
     """
     from PIL import Image
     
     img_before = Image.open(before)
     img_after = Image.open(after)
     
-    # Sample pixel from center (should be background color)
-    center_x = img_before.width // 2
-    center_y = img_before.height // 2
+    # Sample pixels from center-left area (background, not UI)
+    # Use multiple samples for robustness
+    samples = [
+        (200, 360),  # Left middle
+        (320, 240),  # Upper left quadrant
+        (320, 480),  # Lower left quadrant
+    ]
     
-    color_before = img_before.getpixel((center_x, center_y))
-    color_after = img_after.getpixel((center_x, center_y))
+    total_difference = 0
+    for x, y in samples:
+        color_before = img_before.getpixel((x, y))
+        color_after = img_after.getpixel((x, y))
+        
+        # Calculate RGB difference
+        diff = sum(abs(a - b) for a, b in zip(color_before[:3], color_after[:3]))
+        total_difference += diff
+        print(f"   Pixel ({x},{y}): {color_before} → {color_after} (diff: {diff})")
     
-    print(f"   Before: RGB{color_before}")
-    print(f"   After:  RGB{color_after}")
+    avg_difference = total_difference / len(samples)
+    print(f"   Average difference: {avg_difference:.1f}")
     
-    # Check if colors are different (they should be)
-    difference = sum(abs(a - b) for a, b in zip(color_before, color_after))
-    print(f"   Difference: {difference}")
-    
-    # In a real test, use VLM:
-    # result = vlm_verify(after, "Is the background red?")
-    
-    return difference > 100  # Arbitrary threshold
+    # Threshold: significant color change should be > 50 per channel average
+    return avg_difference > 100
 
 
 if __name__ == "__main__":

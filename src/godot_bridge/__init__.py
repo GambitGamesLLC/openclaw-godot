@@ -3,12 +3,14 @@
 __version__ = "0.1.0"
 
 from .capture import ScreenshotCapture
-from .input import InputInjector
 from .godot import GodotProject, GodotRunner
+
+# InputInjector requires tkinter (PyAutoGUI), import lazily
+# from .input import InputInjector
 
 __all__ = [
     "ScreenshotCapture",
-    "InputInjector", 
+    # "InputInjector",  # Requires tkinter
     "GodotProject",
     "GodotRunner",
 ]
