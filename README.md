@@ -40,15 +40,89 @@ Unlike traditional MCP servers (which bridge gap for AI without system access), 
 - ✅ DiscordOrchestration worker swarm
 - ✅ Vision-language model integration
 
+## Installation
+
+### System Dependencies
+
+| Tool | Purpose | Install Command |
+|------|---------|-----------------|
+| **Godot 4.x** | Game engine | [Download](https://godotengine.org/download) or `sudo snap install godot` |
+| **Python 3.10+** | Bridge runtime | Usually pre-installed |
+| **tkinter** | PyAutoGUI dependency (input injection) | `sudo apt install python3-tk python3-dev` |
+| **xdotool** | Window management for screenshots | `sudo apt install xdotool` |
+
+**Why tkinter?** PyAutoGUI uses it for mouse/keyboard control on Linux. Without it, you can still run headless tests but not interactive GUI tests.
+
+**Why xdotool?** Used to find and focus Godot windows for targeted screenshots. Falls back to full-screen capture if unavailable.
+
+### Python Dependencies
+
+```bash
+# Install all Python packages
+pip3 install mss Pillow pyautogui
+
+# Or install as editable package (recommended for development)
+pip3 install -e .
+```
+
+| Package | Purpose |
+|---------|---------|
+| **mss** | Multi-screen screenshot capture (fast, no GUI deps) |
+| **Pillow** | Image processing (save, analyze screenshots) |
+| **PyAutoGUI** | Mouse/keyboard input injection (requires tkinter) |
+
+### Verify Installation
+
+```bash
+# Test core functionality (no GUI needed)
+cd examples/button_background
+python3 test_phase0.py
+
+# Expected output:
+# ✅ PHASE 0 PASSED
+# - GodotProject loads
+# - ScreenshotCapture works
+# - GodotRunner runs project
+```
+
 ## Quick Start
 
 ```bash
-# Install Python dependencies
-pip install -e .
+# 1. Clone and enter repo
+cd ~/Documents/GitHub/openclaw-godot
 
-# Run your first automated test
+# 2. Install dependencies
+pip3 install mss Pillow pyautogui
+
+# 3. Run Phase 0 test (headless, no GUI needed)
 cd examples/button_background
-python test_autonomous.py
+python3 test_phase0.py
+
+# 4. (Optional) Install tkinter for interactive tests
+sudo apt install python3-tk python3-dev
+python3 test_autonomous.py  # Full test with button clicking
+```
+
+## Troubleshooting
+
+### "ModuleNotFoundError: No module named 'mss'"
+```bash
+pip3 install mss Pillow pyautogui
+```
+
+### "NOTE: You must install tkinter"
+PyAutoGUI requires tkinter for Linux. Install it:
+```bash
+sudo apt install python3-tk python3-dev
+```
+Or use `test_phase0.py` which doesn't need tkinter.
+
+### "Godot not found in PATH"
+Ensure `godot` command works:
+```bash
+which godot
+# If not found, create symlink:
+sudo ln -s /path/to/Godot_v4.6 /usr/local/bin/godot
 ```
 
 ## Components
