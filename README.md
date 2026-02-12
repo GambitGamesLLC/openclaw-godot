@@ -200,10 +200,7 @@ Orchestrator analyzes task content:
 
 ### Advanced: Custom Orchestrator Configuration
 
-For Godot-specific tasks, use the modified orchestrator (`orchestrator-cookie.sh`) that supports:
-
-1. **Custom AGENTS.md templates** — Use worker definitions from `workers/`
-2. **Extra PYTHONPATH** — Make `godot_bridge` available to agents
+The orchestrator supports environment variables for Godot-specific tasks:
 
 #### Usage
 
@@ -213,16 +210,15 @@ cd ~/Documents/GitHub/discord-orchestration
 # Run with godot-tester template and godot_bridge in PYTHONPATH
 AGENTS_MD_TEMPLATE=~/Documents/GitHub/openclaw-godot/workers/godot-tester.md \
 EXTRA_PYTHONPATH=~/Documents/GitHub/openclaw-godot/src \
-./bin/orchestrator-cookie.sh
+./bin/orchestrator.sh
 ```
 
 #### Environment Variables
 
 | Variable | Purpose | Example |
 |----------|---------|---------|
-| `AGENTS_MD_TEMPLATE` | Path to worker template | `~/openclaw-godot/workers/godot-tester.md` |
+| `AGENTS_MD_TEMPLATE` | Path to custom AGENTS.md template | `~/openclaw-godot/workers/godot-tester.md` |
 | `EXTRA_PYTHONPATH` | Add godot_bridge to Python path | `~/openclaw-godot/src` |
-| `DISCORD_CONFIG` | Custom config file path | `~/discord-config-cookie.env` |
 
 #### How It Works
 
@@ -244,9 +240,10 @@ Submit a task that specifies the worker type:
 
 The orchestrator will:
 - Parse `[worker:godot-tester]` tag
-- Use `workers/godot-tester.md` as AGENTS.md
-- Include `godot_bridge` in PYTHONPATH
-- Spawn agent ready to run Godot tests
+- Log the worker type
+- Post worker type to Discord #worker-pool
+- Use custom AGENTS.md if `AGENTS_MD_TEMPLATE` is set
+- Include `EXTRA_PYTHONPATH` in agent environment
 
 ## Components
 
