@@ -18,31 +18,32 @@ Logs, screenshots, debugger output — all require manual handoff.
 
 OpenClaw-Godot provides **infrastructure** plus **two integration options**:
 
-| Approach | Best For | Status |
-|----------|----------|--------|
-| **DiscordOrchestration** | ✅ Distributed workers, parallel tasks, production | **Primary** |
-| **OpenClaw Native** | Simple single-machine workflows, quick tests | Alternative |
+| Approach                  | Best For                                          | Status      |
+| ------------------------- | ------------------------------------------------- | ----------- |
+| **Discord Orchestration** | ✅ Distributed workers, parallel tasks, production | **Primary** |
+| **OpenClaw Native**       | Simple single-machine workflows, quick tests      | Alternative |
 
 ### Why DiscordOrchestration is Primary
 
-OpenClaw's built-in `sessions_spawn` sub-agent system has [known issues](https://github.com/openclaw/openclaw/issues/10467) with parallel execution and zombie processes.
+OpenClaw's built-in `sessions_spawn` sub-agent system has https://github.com/openclaw/openclaw/issues/10467 with parallel execution and zombie processes.
 
-**Chip's DiscordOrchestration** provides:
+**Discord Orchestration** provides:
+
 - ✅ Dynamic agent spawning (fresh agent per task)
 - ✅ No race conditions (atomic Discord reaction claiming)
 - ✅ No zombie processes (agents exit cleanly)
 - ✅ Parallel execution (multiple agents simultaneously)
 - ✅ Automatic retries with exponential backoff
-- ✅ Screenshot proof attached to Discord results
+- ✅ Proof attached to Discord results
 
 ## Architecture
 
-### Option 1: DiscordOrchestration (Recommended)
+### Option 1: Discord Orchestration (Recommended)
 
 ```
 ┌─────────────┐     ┌──────────────┐     ┌──────────────┐
 │   You       │────▶│  #task-queue │────▶│ Orchestrator │
-│  Submit     │     │   (Discord)    │     │  (Cookie)    │
+│  Submit     │     │   (Discord)  │     │   (Agent)    │
 └─────────────┘     └──────────────┘     └───────┬──────┘
                                                   │
                        ┌──────────────────────────┘
@@ -50,7 +51,7 @@ OpenClaw's built-in `sessions_spawn` sub-agent system has [known issues](https:/
                        │ (with worker template)
                        ▼
 ┌─────────────┐     ┌──────────────┐     ┌──────────────┐
-│   Agent     │◀───│   Workspace  │◀────│  OpenClaw    │
+│   Agent     │◀─── │   Workspace  │◀────│  OpenClaw    │
 │  Executes   │     │  (isolated)  │     │  Gateway     │
 │  GDScript   │     └──────────────┘     └──────────────┘
 │  Tests      │              │
@@ -68,16 +69,18 @@ OpenClaw's built-in `sessions_spawn` sub-agent system has [known issues](https:/
 ```
 
 **Requirements:**
+
 - Discord server with #task-queue, #results, #worker-pool channels
 - Discord bot token
-- Chip's DiscordOrchestration repo (`~/Documents/GitHub/discord-orchestration/`)
+- Discord Orchestration repo (`~/Documents/GitHub/discord-orchestration/`)
+  - [Download from Github](https://github.com/GambitGamesLLC/discord-orchestration) (FREE - MIT License)
 
 ### Option 2: OpenClaw Native (Direct)
 
 ```
 ┌─────────────┐     ┌──────────────┐     ┌──────────────┐
 │ Orchestrator│────▶│  sessions_   │────▶│   Worker     │
-│   (Cookie)  │     │   spawn()    │     │   Agent      │
+│ (OpenClaw)  │     │   spawn()    │     │   Agent      │
 └─────────────┘     └──────────────┘     └───────┬──────┘
                           │                      │
                           │    ┌─────────────────┘
@@ -87,23 +90,24 @@ OpenClaw's built-in `sessions_spawn` sub-agent system has [known issues](https:/
                           │ │ Godot Project│
                           │ └──────────────┘
                           │
-                          └── Returns result to Cookie
+                          └── Returns result to Orchestrator
 ```
 
 **Requirements:**
+
 - Just OpenClaw (no Discord setup)
-- **Note:** Limited by `sessions_spawn` bugs — avoid parallel tasks
+- **Note:** Limited by `sessions_spawn` bugs — avoid parallel tasks with SubAgents
 
 ## Installation
 
 ### System Dependencies
 
-| Tool | Purpose | Install Command |
-|------|---------|-----------------|
-| **Godot 4.x** | Game engine | [Download](https://godotengine.org/download) or `sudo snap install godot` |
-| **Python 3.10+** | Bridge runtime | Usually pre-installed |
-| **tkinter** | PyAutoGUI dependency | `sudo apt install python3-tk python3-dev` |
-| **xdotool** | Input injection | `sudo apt install xdotool` |
+| Tool             | Purpose              | Install Command                                                           |
+| ---------------- | -------------------- | ------------------------------------------------------------------------- |
+| **Godot 4.x**    | Game engine          | [Download](https://godotengine.org/download) or `sudo snap install godot` |
+| **Python 3.10+** | Bridge runtime       | Usually pre-installed                                                     |
+| **tkinter**      | PyAutoGUI dependency | `sudo apt install python3-tk python3-dev`                                 |
+| **xdotool**      | Input injection      | `sudo apt install xdotool`                                                |
 
 ### Python Dependencies
 
@@ -111,23 +115,9 @@ OpenClaw's built-in `sessions_spawn` sub-agent system has [known issues](https:/
 pip3 install mss Pillow pyautogui
 ```
 
-### DiscordOrchestration Setup
+##### Usage
 
-See Chip's repo (`~/Documents/GitHub/discord-orchestration/`) for full setup:
-
-```bash
-# Link the sanitization skill (prevents Discord markdown issues)
-ln -s ~/Documents/GitHub/discord-orchestration/skills/discord-sanitize \
-  ~/.openclaw/skills/discord-sanitize
-
-# Configure Discord bot token and channel IDs
-cp discord-config.env.example discord-config.env
-# Edit discord-config.env with your tokens
-```
-
-## Usage
-
-### Via DiscordOrchestration (Recommended)
+### Via Discord Orchestration (Recommended)
 
 ```bash
 # Submit a task to Discord
@@ -138,6 +128,7 @@ cd ~/Documents/GitHub/discord-orchestration
 ```
 
 **Task format:**
+
 ```
 [project:button_background]
 [worker:godot-tester]
@@ -158,7 +149,7 @@ python3 examples/button_background/test_phase1_autotest.py
 
 ### How Templates Work
 
-When DiscordOrchestration spawns an agent, it includes the appropriate worker template as the agent's `AGENTS.md`:
+When Discord Orchestration spawns an agent, it includes the appropriate worker template as the agent's `AGENTS.md`:
 
 ```
 Agent Workspace
@@ -173,16 +164,17 @@ Agent Workspace
 
 ### Available Workers
 
-| Worker | Template | Description |
-|--------|----------|-------------|
-| **godot-coder** | `workers/godot-coder.md` | Implements GDScript features |
-| **godot-tester** | `workers/godot-tester.md` | Runs tests, captures screenshots |
-| **godot-visual-verifier** | `workers/godot-visual-verifier.md` | VLM-based screenshot analysis |
-| **godot-debugger** | `workers/godot-debugger.md` | Error analysis + fix proposals |
+| Worker                    | Template                           | Description                      |
+| ------------------------- | ---------------------------------- | -------------------------------- |
+| **godot-coder**           | `workers/godot-coder.md`           | Implements GDScript features     |
+| **godot-tester**          | `workers/godot-tester.md`          | Runs tests, captures screenshots |
+| **godot-visual-verifier** | `workers/godot-visual-verifier.md` | VLM-based screenshot analysis    |
+| **godot-debugger**        | `workers/godot-debugger.md`        | Error analysis + fix proposals   |
 
 ### Template Selection
 
 **Method 1: Task Tag**
+
 ```
 [worker:godot-tester]
 
@@ -190,6 +182,7 @@ Run tests on button_background project...
 ```
 
 **Method 2: Submit Script**
+
 ```bash
 ./bin/submit-to-queue.sh \
   --worker godot-coder \
@@ -199,6 +192,7 @@ Run tests on button_background project...
 
 **Method 3: Orchestrator Auto-Detect**
 Orchestrator analyzes task content:
+
 - "Debug error" → godot-debugger
 - "Implement feature" → godot-coder
 - "Verify screenshot" → godot-visual-verifier
@@ -206,12 +200,12 @@ Orchestrator analyzes task content:
 
 ## Components
 
-| Component | Purpose | Location |
-|-----------|---------|----------|
-| `src/godot_bridge/` | Python interface to Godot | This repo |
-| `godot/*/` | Test projects with auto-test scenes | This repo |
-| `workers/*.md` | Worker agent templates | This repo |
-| `discord-orchestration/` | Orchestration system | Separate repo |
+| Component                | Purpose                             | Location      |
+| ------------------------ | ----------------------------------- | ------------- |
+| `src/godot_bridge/`      | Python interface to Godot           | This repo     |
+| `godot/*/`               | Test projects with auto-test scenes | This repo     |
+| `workers/*.md`           | Worker agent templates              | This repo     |
+| `discord-orchestration/` | Orchestration system                | Separate repo |
 
 ## Quick Start Examples
 
@@ -254,6 +248,7 @@ cd ~/Documents/GitHub/discord-orchestration
 ```
 
 **Result in Discord #results:**
+
 ```
 🧪 Test: button_background
 
@@ -270,23 +265,27 @@ Key findings:
 ## Troubleshooting
 
 ### "ModuleNotFoundError: No module named 'mss'"
+
 ```bash
 pip3 install mss Pillow pyautogui
 ```
 
 ### "Godot not found in PATH"
+
 ```bash
 which godot
 # If not found:
 sudo ln -s /path/to/Godot_v4.6 /usr/local/bin/godot
 ```
 
-### DiscordOrchestration not finding tasks
+### Discord Orchestration not finding tasks
+
 - Check `discord-config.env` has correct channel IDs
 - Verify bot has permissions (Send Messages, Add Reactions, etc.)
 - Check #task-queue has unclaimed tasks (no ✅ reaction)
 
 ### Markdown formatting broken in Discord
+
 - Ensure `discord-sanitize` skill is linked: `ls ~/.openclaw/skills/`
 - Verify skill loads: `openclaw skills list`
 - Restart OpenClaw: `openclaw gateway restart`
@@ -295,7 +294,7 @@ sudo ln -s /path/to/Godot_v4.6 /usr/local/bin/godot
 
 - [Architecture](docs/ARCHITECTURE.md) — Technical design
 - [Workers](workers/) — Worker template specifications
-- [DiscordOrchestration](https://github.com/GambitGamesLLC/discord-orchestration) — Orchestration system
+- [Discord Orchestration](https://github.com/GambitGamesLLC/discord-orchestration) — Orchestration system
 
 ## Contributing
 
@@ -324,5 +323,5 @@ MIT — See [LICENSE](LICENSE)
 
 ---
 
-Built with 🍪 for Derrick's OpenClaw setup.
-Using Chip's DiscordOrchestration for reliable sub-agent spawning.
+Built with 🍪Cookie for Derrick's OpenClaw setup.
+Using Chip's Discord Orchestration system for reliable OpenClaw sub-agent spawning.

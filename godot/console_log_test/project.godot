@@ -1,0 +1,17 @@
+; Engine Configuration
+; Godot version: 4.6.stable
+
+[application]
+config/name="Console Log Test"
+config/description="Test project for verifying console log capture"
+run/main_scene="res://main.tscn"
+config/features=["4.2", "GL Compatibility"]
+config/icon="res://icon.svg"
+
+[display]
+window/size/viewport_width=800
+window/size/viewport_height=600
+window/size/resizable=false
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
