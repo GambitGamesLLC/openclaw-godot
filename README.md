@@ -49,11 +49,11 @@ Unlike traditional MCP servers (which bridge gap for AI without system access), 
 | **Godot 4.x** | Game engine | [Download](https://godotengine.org/download) or `sudo snap install godot` |
 | **Python 3.10+** | Bridge runtime | Usually pre-installed |
 | **tkinter** | PyAutoGUI dependency (input injection) | `sudo apt install python3-tk python3-dev` |
-| **xdotool** | Window management for screenshots | `sudo apt install xdotool` |
+| **xdotool** | Input injection (clicking, typing) | `sudo apt install xdotool` |
 
-**Why tkinter?** PyAutoGUI uses it for mouse/keyboard control on Linux. Without it, you can still run headless tests but not interactive GUI tests.
+**Why tkinter?** PyAutoGUI uses it for mouse/keyboard control on Linux. Required for `InputInjector` class. Without it, use xdotool-based tests instead.
 
-**Why xdotool?** Used to find and focus Godot windows for targeted screenshots. Falls back to full-screen capture if unavailable.
+**Why xdotool?** Sends mouse/keyboard events to Godot windows. Required for Phase 1+ interactive tests (clicking buttons, etc.).
 
 ### Python Dependencies
 
