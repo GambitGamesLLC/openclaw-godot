@@ -81,19 +81,72 @@ Key findings:
 - [bullet points]
 ```
 
-### Screenshot Naming
+### Artifact Locations (IMPORTANT)
+
+**All artifacts must be saved to the worker's task directory:**
+```python
+import os
+
+# Get the task directory from environment
+TASK_DIR = os.environ.get('TASK_DIR', '/tmp')
+
+# Save screenshots HERE, not in openclaw-godot folder
+screenshot_path = os.path.join(TASK_DIR, 'screenshot_result.png')
 ```
-screenshot_result.png  — Main evidence
-screenshot_before.png  — If before/after comparison
-screenshot_after.png   — If before/after comparison
-```
+
+**Required artifacts:**
+- `RESULT.txt` — Full test results (required)
+- `SUMMARY.txt` — Condensed summary for Discord (required)
+- `screenshot_result.png` — Screenshot evidence (if applicable)
+- `screenshot_before.png` — Before state (if applicable)
+- `screenshot_after.png` — After state (if applicable)
+- Any audio/video captures — Save to TASK_DIR
+
+**DO NOT save to:**
+- `~/Documents/GitHub/openclaw-godot/test_outputs/` ❌
+- Any location outside TASK_DIR ❌
+
+The orchestrator will handle cleanup of the task directory after posting results.
 
 ## Testing Scenarios
 
 ### Auto-Test Verification
 ```python
-# Run auto-test scene, check for PASS/FAIL in logs
-# Verify screenshot shows expected state
+import os
+from pathlib import Path
+from godot_bridge import GodotRunner, GodotProject, ScreenshotCapture
+
+# Get task directory for artifacts
+TASK_DIR = Path(os.environ.get('TASK_DIR', '.'))
+
+# Run test
+runner = GodotRunner()
+project = GodotProject("/path/to/project")
+runner.run_with_display(project, "main_auto_test.tscn")
+
+# Wait for completion
+time.sleep(6)
+
+# Capture screenshot to TASK_DIR (not openclaw-godot folder!)
+capture = ScreenshotCapture()
+img = capture.capture_screen()
+screenshot_path = TASK_DIR / 'screenshot_result.png'
+capture.save_screenshot(img, screenshot_path)
+
+# Stop Godot
+runner.stop()
+
+# Write RESULT.txt
+result_file = TASK_DIR / 'RESULT.txt'
+result_file.write_text(f"""
+✅ TEST PASSED
+Screenshot: {screenshot_path}
+Verification: Red background confirmed
+""")
+
+# Write SUMMARY.txt
+summary_file = TASK_DIR / 'SUMMARY.txt'
+summary_file.write_text("🧪 Test PASSED - Red background verified")
 ```
 
 ### Feature Testing
