@@ -49,3 +49,7 @@ Thumbs.db
 test_outputs/
 screenshots/
 *.log
+
+# Dolt database files (added by bd init)
+.dolt/
+*.db

@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "server",
+  "dolt_database": "openclaw_godot",
+  "project_id": "f73413db-c5c2-4bc6-ac7f-e74a10e756ea"
+}
