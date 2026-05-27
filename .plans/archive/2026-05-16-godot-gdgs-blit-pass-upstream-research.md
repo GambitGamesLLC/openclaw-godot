@@ -1,7 +1,9 @@
 # OpenClaw-Godot
 
 **Date:** 2026-05-16  
-**Status:** In Progress  
+**Status:** Complete (archived 2026-05-26)
+**Last Updated:** 2026-05-26 21:53 EDT
+**Blocked Reason:** Archived on 2026-05-26 after the master Godot bug-hunt lane absorbed this completed upstream-research slice.
 **Agent:** Chip 🐱‍💻
 
 ---
@@ -49,7 +51,7 @@ This slice is research-first and GitHub-history-heavy: search issues, PRs, relea
 - `/home/derrick/.openclaw/workspace/projects/openclaw-godot/`
 
 **Files Created/Deleted/Modified:**
-- `/home/derrick/.openclaw/workspace/projects/openclaw-godot/.plans/2026-05-16-godot-gdgs-blit-pass-upstream-research.md`
+- `/home/derrick/.openclaw/workspace/projects/openclaw-godot/.plans/archive/2026-05-16-godot-gdgs-blit-pass-upstream-research.md`
 - `/home/derrick/.openclaw/workspace/projects/openclaw-godot/docs/gdgs-blit-pass-upstream-research-2026-05-16.md`
 
 **Status:** ✅ Complete
@@ -70,30 +72,32 @@ This slice is research-first and GitHub-history-heavy: search issues, PRs, relea
 - `/home/derrick/.openclaw/workspace/projects/openclaw-godot/`
 
 **Files Created/Deleted/Modified:**
-- `/home/derrick/.openclaw/workspace/projects/openclaw-godot/.plans/2026-05-16-godot-gdgs-blit-pass-upstream-research.md`
+- `/home/derrick/.openclaw/workspace/projects/openclaw-godot/.plans/archive/2026-05-16-godot-gdgs-blit-pass-upstream-research.md`
 - supporting docs/notes as needed
 
-**Status:** ⏳ Pending
+**Status:** ✅ Complete
 
-**Results:** Pending.
+**Results:** Independently audited the upstream-history memo against the attached AeroBeat narrowing artifacts (`REF-01` through `REF-05`) and agreed with its core negative conclusion: there is still no strong exact upstream match and no convincing post-4.6.2 landed fix signal for this specific `CompositorEffect` + custom `RenderingDevice` compute + `No Present still crashes` + `BLIT_PASS` device-loss shape. Audit verdict: the most evidence-backed next lane is a **two-step order** rather than a single bet. **First**, run one cheap confirmation pass on the latest available Godot 4.7-dev/nightly or master build, because that is the lowest-cost way to catch an unadvertised engine-side fix and removes guesswork before filing upstream. **Second**, if the repro still survives there, open a new focused upstream Godot issue immediately using the already-strong reduction package (minimal GDGS scene, `No Present` evidence, Intel Iris Xe / Linux / Wayland / Vulkan context, and links to `REF-01` through `REF-05`). I do **not** recommend starting with local engine-side investigation before that issue is filed: the current evidence is already strong enough to justify upstream review, while an engine fork/debug lane is materially more expensive and still lacks proof that the bug is locally patchable without maintainer guidance. Confidence: **medium-high** on the ordering, **high** that “just try a newer build and hope” is too weak, and **low** that a newer build is likely to already contain a fix. This recommendation beats the alternatives because it preserves the cheap sanity check, avoids overclaiming that upstream already fixed it, and avoids paying the highest-cost investigation path before using the existing narrowed repro to ask Godot maintainers whether the usage is valid or backend-buggy. Validated against `REF-01` through `REF-06`. 
 
 ---
 
 ## Final Results
 
-**Status:** ⚠️ Draft
+**Archived Note:** Archived on 2026-05-26 after the master Godot bug-hunt lane absorbed this completed upstream-research slice.
 
-**What We Built:** Pending execution.
+**Status:** ✅ Complete
 
-**Reference Check:** Pending.
+**What We Built:** Produced an upstream-history research memo plus an independent audit recommendation for the next Godot lane. The finished call is: **(1) test the narrowed repro once on the newest practical Godot 4.7-dev/nightly or master build, then (2) if it still reproduces, file a focused upstream Godot issue immediately with the existing reduction evidence; only after that should Derrick consider a local engine-side investigation lane unless maintainer feedback or new evidence changes the owner.**
+
+**Reference Check:** `REF-01` through `REF-06` were used in the audit. The final recommendation matches the strongest common signal across the sources: no exact prior art, no clearly landed fix after 4.6.2, and no evidence strong enough to skip either the cheap newer-build sanity check or the upstream-report step.
 
 **Commits:**
-- Pending.
+- No commit created in this audit/recommendation pass.
 
 **Lessons Learned:**
-- Upstream-history research is the cheapest sanity check before opening a heavy engine-debug lane.
-- If the bug already has a landed fix in a newer beta/release, version validation may beat local engine surgery.
+- Upstream-history research can narrow confidence, but absence of a matching report is not evidence that a newer build already fixes the bug.
+- Once a repro is already this tight, opening an upstream issue after one version-sanity pass is a better cost/learning trade than jumping straight into local engine surgery.
 
 ---
 
-*Completed on Pending*
+*Completed on 2026-05-26*

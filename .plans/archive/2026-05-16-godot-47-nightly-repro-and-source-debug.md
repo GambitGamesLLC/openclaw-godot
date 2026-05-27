@@ -1,7 +1,9 @@
 # OpenClaw-Godot
 
 **Date:** 2026-05-16  
-**Status:** In Progress  
+**Status:** Complete (archived 2026-05-26)
+**Last Updated:** 2026-05-26 21:53 EDT
+**Blocked Reason:** Archived on 2026-05-26 after the master Godot bug-hunt lane absorbed this completed nightly-repro/source-debug pivot slice.
 **Agent:** Chip 🐱‍💻
 
 ---
@@ -27,7 +29,7 @@ So this slice has a two-stage design. Stage 1 is a cheap version-check repro aga
 | ID | Description | Path |
 | --- | --- | --- |
 | `REF-01` | Godot upstream-history research memo | `/home/derrick/.openclaw/workspace/projects/openclaw-godot/docs/gdgs-blit-pass-upstream-research-2026-05-16.md` |
-| `REF-02` | Godot upstream-history research plan/results | `/home/derrick/.openclaw/workspace/projects/openclaw-godot/.plans/2026-05-16-godot-gdgs-blit-pass-upstream-research.md` |
+| `REF-02` | Godot upstream-history research plan/results | `/home/derrick/.openclaw/workspace/projects/openclaw-godot/.plans/archive/2026-05-16-godot-gdgs-blit-pass-upstream-research.md` |
 | `REF-03` | GDGS ownership map | `/home/derrick/.openclaw/workspace/projects/aerobeat/aerobeat-vendor-gdgs/docs/gdgs-blit-pass-ownership-map.md` |
 | `REF-04` | GDGS source trace | `/home/derrick/.openclaw/workspace/projects/aerobeat/aerobeat-vendor-gdgs/docs/gdgs-blit-pass-source-trace.md` |
 | `REF-05` | GDGS direct-dispatch isolation notes | `/home/derrick/.openclaw/workspace/projects/aerobeat/aerobeat-vendor-gdgs/docs/gdgs-direct-dispatch-isolation.md` |
@@ -51,7 +53,7 @@ So this slice has a two-stage design. Stage 1 is a cheap version-check repro aga
 - `/home/derrick/.openclaw/workspace/.temp/`
 
 **Files Created/Deleted/Modified:**
-- `/home/derrick/.openclaw/workspace/projects/openclaw-godot/.plans/2026-05-16-godot-47-nightly-repro-and-source-debug.md`
+- `/home/derrick/.openclaw/workspace/projects/openclaw-godot/.plans/archive/2026-05-16-godot-47-nightly-repro-and-source-debug.md`
 - `/home/derrick/.openclaw/workspace/projects/openclaw-godot/docs/gdgs-godot-47-dev5-nightly-repro-2026-05-16.md`
 - `/home/derrick/.openclaw/workspace/.temp/gdgs-godot-47-dev5-nightly-repro-2026-05-16/`
 
@@ -78,7 +80,7 @@ The meaningful delta is diagnostic, not curative: 4.7-dev5 now emits repeated en
 - `/home/derrick/.openclaw/workspace/projects/godot/`
 
 **Files Created/Deleted/Modified:**
-- `/home/derrick/.openclaw/workspace/projects/openclaw-godot/.plans/2026-05-16-godot-47-nightly-repro-and-source-debug.md`
+- `/home/derrick/.openclaw/workspace/projects/openclaw-godot/.plans/archive/2026-05-16-godot-47-nightly-repro-and-source-debug.md`
 - `/home/derrick/.openclaw/workspace/projects/openclaw-godot/docs/gdgs-godot-source-debug-lane-2026-05-16.md`
 
 **Status:** ✅ Complete
@@ -107,7 +109,7 @@ That does **not** fully clear Godot, because the later crash still lands near th
 - `/home/derrick/.openclaw/workspace/projects/openclaw-godot/`
 
 **Files Created/Deleted/Modified:**
-- `/home/derrick/.openclaw/workspace/projects/openclaw-godot/.plans/2026-05-16-godot-47-nightly-repro-and-source-debug.md`
+- `/home/derrick/.openclaw/workspace/projects/openclaw-godot/.plans/archive/2026-05-16-godot-47-nightly-repro-and-source-debug.md`
 - supporting docs/notes as needed
 
 **Status:** ⏳ Pending
@@ -118,7 +120,9 @@ That does **not** fully clear Godot, because the later crash still lands near th
 
 ## Final Results
 
-**Status:** ⚠️ Draft
+**Archived Note:** Archived on 2026-05-26 after the master Godot bug-hunt lane absorbed this completed nightly-repro/source-debug pivot slice.
+
+**Status:** ✅ Complete
 
 **What We Built:** We validated the existing GDGS control-scene repro on the latest practical official Godot 4.7-dev snapshot we could acquire in this environment (`4.7.dev5.official.a8643700c`) and captured a fresh artifact package proving the bug still reproduces on the newer build.
 
@@ -133,4 +137,4 @@ That does **not** fully clear Godot, because the later crash still lands near th
 
 ---
 
-*Completed on Pending*
+*Completed on 2026-05-26*
