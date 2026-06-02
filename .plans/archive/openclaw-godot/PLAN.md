@@ -1,4 +1,6 @@
 # OpenClaw-Godot: Autonomous Agentic Development for Godot
+**Archive Note:** Historical legacy planning material archived on 2026-06-02 during the second plan hygiene cleanup pass. Preserved for reference; this is not an active plan workspace.
+
 
 **Vision:** Enable OpenClaw Orchestrator agents to implement, test, and iterate on Godot features without human intervention — closing the gap that currently forces humans to stay in the loop for logs, screenshots, and testing feedback.
 

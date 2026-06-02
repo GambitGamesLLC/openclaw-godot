@@ -1,4 +1,6 @@
 # OpenClaw-Godot
+**Archive Note:** Historical legacy planning material archived on 2026-06-02 during the second plan hygiene cleanup pass. Preserved for reference; this is not an active plan workspace.
+
 
 **Autonomous agentic development for Godot Engine.**
 
